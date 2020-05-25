@@ -2,24 +2,96 @@
 @{
     ViewData["Title"] = "Home Page";
 }
-<table class="table">
-    <thead>
-        <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Surname</th>
-            <th>Age</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-        <tr>
-            <td>@item.ID</td>
-            <td>@item.Name</td>
-            <td>@item.Surname</td>
-            <td>@item.Age</td>
-        </tr>
+<head>
+</head>
+<body>
+    <script>
+        function AddPerson() {
+            debugger;
+            let Name = $('#FirstName').val()
+            let Surname = $('#Surname').val();
+            let Middlename = $('#Middlename').val();
+            $.post("/Actions/Addperson", { Name: Name, Surname: Surname, Middlename: Middlename })
+                .done(function (data) {
+                    debugger;
+                    if (data == "Error") {
+                        alert("Error!!!");
+                    }
+                    else {
+                        $("#TableBody").append(`<tr><td>${data}</td><td>${Name}</td><td>${Surname}</td><td>${Middlename}</td></tr>`);
+                        alert("Person was added successfully");
+
+                    }
+                })
         }
-    </tbody>
-</table>
+        function Search() {
+            let search = $('#search').val();
+            $.post("/Actions/Search", { search: search })
+                .done(function (data) {
+                    debugger;
+                    if (data != null && data!="Error") {
+                        $("#TableBody").empty();
+                        $("#TableBody").append(`<tr><td>${data.id}</td><td>${data.name}</td><td>${data.surname}</td><td>${data.middlename}</td></tr>`);
+                    }
+                    else if (data != "Error") {
+                        alert("Ничено не найдено по вашему поиску")
+                    }
+                    else {
+                        alert("Произошла ошибка!!!")
+                    }
+                })
+                .fail(function () {
+                    alert("Произошла ошибка!!!")
+                })
+        }
+    </script>
+    <div style="border:1px solid gray;border-radius:5px;width:auto">
+        <input style="border:none;width:70%;height:40px;outline:none" id="search" placeholder="Имя Фамилия Отчество или ID" />
+        <button class="btn btn-primary" style="width:90px;height:40px;float:right" onclick="Search()">Поиск</button>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Surname</th>
+                <th>Middlename</th>
+            </tr>
+        </thead>
+        <tbody id="TableBody">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ID</td>
+                    <td>@item.Name</td>
+                    <td>@item.Surname</td>
+                    <td>@item.Middlename</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button style="width:100%" class="btn btn-success" data-target="#AddModal" data-toggle="modal">Добавить</button>
+    <div class="modal fade" id="AddModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Добавление</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label>FirstName</label>
+                    <input class="form-control" placeholder="FirstName" id="FirstName" name="Firstname" required />
+                    <label>Surname</label>
+                    <input class="form-control" placeholder="Surname" id="Surname" name="Surname" required />
+                    <label>Middlename</label>
+                    <input class="form-control" placeholder="Middlename" id="Middlename" name="Middlename" required />
+                </div>
+                <div class="modal-footer">
+                    <button style="width:100%" type="button" onclick="AddPerson()" class="btn btn-primary">Добавить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
